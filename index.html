@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		.hide{
+			display: none;
+		}
+		.show{
+			display: block;
+		}
+		img{
+			width: 100px;
+			height: 120px;
+		}
+	</style>
+	<script type="text/javascript" src="socket.io/socket.io.js"></script>
+</head>
+<body>
+	<div id="login">
+		请登录：<input type="text">
+		<input type="button" value="登录">
+	</div>
+	<div id="main" class="hide">
+		<input type="text">
+		<input type="color">
+		<input type="file">
+		<input type="button" value="发送">
+		<div id="box"></div>
+		<p id="load"></p>
+	</div>
+	<script type="text/javascript">
+		var login=document.getElementById("login"),
+			loginin=login.getElementsByTagName("input")[0],
+			loginbtn=login.getElementsByTagName("input")[1],
+		    main=document.getElementById("main"),
+		    box=document.getElementById("box"),
+		    load=document.getElementById("load"),
+			text=main.getElementsByTagName("input")[0],
+			colors=main.getElementsByTagName("input")[1],
+			file=main.getElementsByTagName("input")[2],
+			mainbtn=main.getElementsByTagName("input")[3];
+			let col="#000";
+		var io=io.connect("http://localhost:3333");
+			loginbtn.onclick=function(){
+				if(loginin.value!=""){
+					io.emit("loginin",loginin.value)
+				}else{
+					alert("登录名不能为空");
+				}
+			}
+			colors.onchange=function(){
+				col=this.value;
+			}
+			mainbtn.onclick=function(){
+				if(text.value!=""){
+					io.emit("setColor","<span style='color:"+col+"'>"+text.value+"</span>")
+				}else{
+					alert("发送内容不能为空");
+				}
+				text.value="";
+			}
+			file.onchange=function(){
+				var fr=new FileReader();
+				fr.readAsDataURL(this.files[0]);
+				fr.onload=function(){
+					io.emit("file",this.result);
+				}
+			}
+			io.on("logina",data=>{
+				login.className="hide";
+				main.className="show";
+			})
+			io.on("getColor",data=>{
+				box.innerHTML+=data;
+			})
+			io.on("loginno",data=>{
+				alert(data);
+			})
+			io.on("load",data=>{
+				load.innerHTML=data;
+			})
+			io.on("simg",(name,url)=>{
+				box.innerHTML+=name+"说:";
+				var img=document.createElement("img");
+				img.src=url;
+				box.appendChild(img);
+				box.innerHTML+="<br>";
+			})
+	</script>
+</body>
+</html>
