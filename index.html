@@ -2,33 +2,80 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Document</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta http-equiv="Cache-Control" content="max-age=0" />
+	<title>Socket.Io</title>
 	<style type="text/css">
+	  body {
+			font-size: 14px;
+		}
 		.hide{
 			display: none;
 		}
 		.show{
 			display: block;
 		}
+		input	{
+			border: 1px solid #ccc;
+			outline: none;
+		}
 		img{
 			width: 100px;
 			height: 120px;
+		}
+		.colorStyle {
+			width: 20px;
+			height: 15px;
+		}
+		.fileStyle {
+			width: 60px;
+			height: 20px;
+		}
+		.colorStyle, .fileStyle {
+			border: none;
+		}
+		.addFun 	{
+			display: flex;
+			justify-content: space-between;
+		}
+		.addFun span {
+			/* flex: 1; */
+			
+		}
+		@media screen and (max-width: 414px) {
+			body {
+				font-size: 14px;
+			}
+			#main {
+				font-size: 12px !important;
+			}
+			#box {
+				font-size: 14px !important;
+			}
 		}
 	</style>
 	<script type="text/javascript" src="socket.io/socket.io.js"></script>
 </head>
 <body>
+	<p id="load"></p>
 	<div id="login">
-		请登录：<input type="text">
-		<input type="button" value="登录">
+		<p>
+			请登录：<input type="text" ">
+			<input type="button" value="登录">
+		</p>
 	</div>
 	<div id="main" class="hide">
-		<input type="text">
-		<input type="color">
-		<input type="file">
-		<input type="button" value="发送">
+		<p>
+			<span style="width: 100vw;">
+				输入内容: <input type="text" style="width: 70%;">
+			</span>
+		</p>
+		<p class="addFun">
+			<span>字体颜色: <input type="color" class="colorStyle"></span>
+			<span>文件: <input type="file" class="fileStyle"></span>
+			<span>Send: <input type="button" value="发送"></span>
+	</p>
 		<div id="box"></div>
-		<p id="load"></p>
 	</div>
 	<script type="text/javascript">
 		var login=document.getElementById("login"),
@@ -42,7 +89,7 @@
 			file=main.getElementsByTagName("input")[2],
 			mainbtn=main.getElementsByTagName("input")[3];
 			let col="#000";
-		var io=io.connect("http://localhost:3333");
+		var io = io.connect(location.href);
 			loginbtn.onclick=function(){
 				if(loginin.value!=""){
 					io.emit("loginin",loginin.value)
@@ -61,32 +108,33 @@
 				}
 				text.value="";
 			}
-			file.onchange=function(){
-				var fr=new FileReader();
+			file.onchange = function(){
+				var fr = new FileReader();
 				fr.readAsDataURL(this.files[0]);
-				fr.onload=function(){
-					io.emit("file",this.result);
+				fr.onload = function(){
+					io.emit("file", this.result);
 				}
 			}
-			io.on("logina",data=>{
-				login.className="hide";
-				main.className="show";
+			io.on("logina", data => {
+				login.className = "hide";
+				main.className = "show";
 			})
-			io.on("getColor",data=>{
-				box.innerHTML+=data;
+			io.on("getColor", data => {
+				box.innerHTML += data;
 			})
-			io.on("loginno",data=>{
+			io.on("loginno", data => {
 				alert(data);
 			})
-			io.on("load",data=>{
-				load.innerHTML=data;
+			io.on("load", data => {
+				console.log(data, 'load');
+				load.innerHTML = data;
 			})
-			io.on("simg",(name,url)=>{
-				box.innerHTML+=name+"说:";
-				var img=document.createElement("img");
-				img.src=url;
+			io.on("simg",(name,url) => {
+				box.innerHTML += name + " 说: ";
+				var img = document.createElement("img");
+				img.src = url;
 				box.appendChild(img);
-				box.innerHTML+="<br>";
+				box.innerHTML += "<br>";
 			})
 	</script>
 </body>
