@@ -34,13 +34,14 @@
 		.colorStyle, .fileStyle {
 			border: none;
 		}
-		.addFun 	{
+		.addFun, .login_p 	{
 			display: flex;
 			justify-content: space-between;
+			line-height: 30px;
+			font-size: 14px;
 		}
 		.addFun span {
 			/* flex: 1; */
-			
 		}
 		@media screen and (max-width: 414px) {
 			body {
@@ -59,15 +60,15 @@
 <body>
 	<p id="load"></p>
 	<div id="login">
-		<p>
-			请登录：<input type="text" ">
+		<p class="login_p">
+			请登录:<input type="text" style="width: 73%; height: 25px;">
 			<input type="button" value="登录">
 		</p>
 	</div>
 	<div id="main" class="hide">
 		<p>
 			<span style="width: 100vw;">
-				输入内容: <input type="text" style="width: 70%;">
+				输入内容:<input type="text" style="width: 84%;">
 			</span>
 		</p>
 		<p class="addFun">
@@ -90,52 +91,59 @@
 			mainbtn=main.getElementsByTagName("input")[3];
 			let col="#000";
 		var io = io.connect(location.href);
-			loginbtn.onclick=function(){
-				if(loginin.value!=""){
-					io.emit("loginin",loginin.value)
-				}else{
-					alert("登录名不能为空");
-				}
+		loginbtn.onclick = function() {
+			if (loginin.value !== "") {
+				io.emit("loginin",loginin.value)
+			} else {
+				alert("登录名不能为空");
 			}
-			colors.onchange=function(){
-				col=this.value;
+		}
+		colors.onchange = function() {
+			col = this.value;
+		}
+		mainbtn.onclick = function() {
+			if (text.value !== "") {
+				io.emit("setColor", "<span style='color:" + col + "'>" + text.value + "</span>")
+			} else {
+				alert("发送内容不能为空");
 			}
-			mainbtn.onclick=function(){
-				if(text.value!=""){
-					io.emit("setColor","<span style='color:"+col+"'>"+text.value+"</span>")
-				}else{
-					alert("发送内容不能为空");
-				}
-				text.value="";
+			text.value = "";
+		}
+		file.onchange = function(){
+			var fr = new FileReader();
+			fr.readAsDataURL(this.files[0]);
+			fr.onload = function(){
+				io.emit("file", this.result);
 			}
-			file.onchange = function(){
-				var fr = new FileReader();
-				fr.readAsDataURL(this.files[0]);
-				fr.onload = function(){
-					io.emit("file", this.result);
-				}
-			}
-			io.on("logina", data => {
-				login.className = "hide";
-				main.className = "show";
-			})
-			io.on("getColor", data => {
-				box.innerHTML += data;
-			})
-			io.on("loginno", data => {
-				alert(data);
-			})
+		}
+		io.on('logina', data => {
+			box.innerHTML += data;
+		})
+		io.on("logina", data => {
+			login.className = "hide";
+			main.className = "show";
 			io.on("load", data => {
-				console.log(data, 'load');
+				console.log(data, 'load 登陆');
+				// if () {
+					
+				// }
 				load.innerHTML = data;
 			})
-			io.on("simg",(name,url) => {
-				box.innerHTML += name + " 说: ";
-				var img = document.createElement("img");
-				img.src = url;
-				box.appendChild(img);
-				box.innerHTML += "<br>";
-			})
+		})
+		io.on("getColor", data => {
+			box.innerHTML += data;
+		})
+		io.on("loginno", data => {
+			alert(data);
+		})
+		
+		io.on("simg",(name,url) => {
+			box.innerHTML += name + " 说: ";
+			var img = document.createElement("img");
+			img.src = url;
+			box.appendChild(img);
+			box.innerHTML += "<br>";
+		})
 	</script>
 </body>
 </html>

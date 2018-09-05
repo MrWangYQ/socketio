@@ -23,17 +23,23 @@ const server = http.createServer((req, res) => {
 	res.end(fs.readFileSync(pathname));
 }).listen(port);
 
+let users = [];
+
 // io 监听 服务
 const io = socketio.listen(server);
 
-let users = [];
+// fs.writeFileSync('io.json', io, (data) => {
+// 	console.log(data);
+// });
 
+console.log(io);
 io.on("connection", socket => {
+	// console.log(socket);
 	socket.on("loginin",data => {
 		if (users.indexOf(data) === -1 ) {
 			users.push(data);
 			socket.user = data;
-			socket.emit("logina", " 登录成功 ");
+			socket.emit("logina", " 登录成功 <br>");
 			io.emit("getColor", "欢迎 " + data + " <br>");
 			io.emit("load", users.length + " 人在线");
 		} else {
